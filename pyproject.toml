@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "incremental-ph"
+version = "0.1.0"
+description = "Incremental persistent homology with exact updates — insert and remove simplices without batch recomputation"
+license = {text = "SEE LICENSE IN LICENSE.md"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Lars Bouaraba"},
+]
+keywords = ["persistent-homology", "topological-data-analysis", "TDA", "incremental", "real-time"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "numpy>=1.22",
+    "numba>=0.56",
+    "scipy>=1.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ripser>=0.6",
+    "scikit-learn>=1.0",
+    "pytest>=7.0",
+]
+
+[project.urls]
+Repository = "https://github.com/lbouaraba/incremental-ph"
+
+[tool.setuptools.packages.find]
+where = ["src"]
