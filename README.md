@@ -94,9 +94,9 @@ Remove edges (and their coface triangles). Edges can be removed in any order —
 
 Full KNN incremental update: evicts edges that no longer pass the KNN threshold, then inserts the new point with KNN-filtered edges.
 
-### `state.barcode_h1(min_persistence=0.0) -> np.ndarray`
+### `state.barcode_h1(min_persistence=1e-6) -> np.ndarray`
 
-Extract the H1 persistence barcode. Returns array of shape `(n_bars, 2)` with `[birth, death]` columns.
+Extract the H1 persistence barcode. Returns array of shape `(n_bars, 2)` with `[birth, death]` columns. The default `min_persistence=1e-6` filters out zero-persistence noise bars that appear in dense graphs. Set to `0.0` to include all bars.
 
 ## How it works
 

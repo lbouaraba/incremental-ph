@@ -327,8 +327,13 @@ class NumbaState:
     # Lifecycle
     alive: np.ndarray           # alive[id] = True if simplex exists
 
-    def barcode_h1(self, min_persistence=0.0):
+    def barcode_h1(self, min_persistence=1e-6):
         """Extract H1 persistence barcode.
+
+        Args:
+            min_persistence: minimum (death - birth) to include a bar.
+                Default 1e-6 filters out zero-persistence noise bars
+                that appear in dense graphs. Set to 0.0 to include all.
 
         Returns:
             np.ndarray of shape (n_bars, 2) with columns [birth, death].
