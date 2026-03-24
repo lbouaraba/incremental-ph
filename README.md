@@ -2,7 +2,17 @@
 
 Incremental persistent homology with exact updates. Insert and remove simplices from a Vietoris-Rips complex without batch recomputation.
 
-Every existing PH tool (Ripser, GUDHI, giotto-ph) is batch-only: change one point and the entire barcode is recomputed from scratch. This library maintains the reduced boundary matrix incrementally, updating only the affected columns. The result is exact (matches Ripser bit-for-bit over Z/2Z) and 10-30x faster for sequential updates.
+This library maintains the reduced boundary matrix (R=DV decomposition) incrementally, updating only the affected columns when simplices are inserted or removed. The result is exact (matches Ripser bit-for-bit over Z/2Z) and 10-30x faster, and provides a practical, pip-installable Python package combining insertion, removal, and KNN updates for high-dimensional point clouds.
+
+## Related work
+
+The theoretical foundations for incremental persistent homology are established:
+
+- **Insertion** into a filtration is the standard case, handled by extending the R=DV decomposition with new columns (Edelsbrunner & Harer, 2010).
+- **Removal** of simplices was solved by [SiRUP](https://arxiv.org/abs/2312.03925) (Giunti & Lazovskis, 2023), which provides a provably optimal algorithm with minimal column additions.
+- **Vineyard updates** for transpositions were introduced by Cohen-Steiner, Edelsbrunner & Morozov (2006).
+
+This library was developed independently — the removal mechanism (V-based XOR-back) was discovered empirically before we became aware of SiRUP. The practical contribution is the combination of insertion + removal + KNN pipeline in a single Numba-accelerated package, tested on high-dimensional data (1024D) with 220+ exact validation checks against Ripser.
 
 ## What it does
 
@@ -104,7 +114,7 @@ Standard PH reduces a boundary matrix D into R = D * V by column operations over
 
 **Insertion**: New simplices are appended and reduced via `reduce_column_incremental`, which handles *pivot displacement* — when a new column claims a pivot already owned by a later column in the filtration, the old owner is displaced and re-reduced.
 
-**Removal**: For each surviving column whose V references a removed simplex, the removed simplex's boundary is XOR'd back into R (undoing its contribution), then the column is re-reduced. This is the *V-based XOR-back* algorithm.
+**Removal**: For each surviving column whose V references a removed simplex, the removed simplex's boundary is XOR'd back into R (undoing its contribution), then the column is re-reduced. This is the *V-based XOR-back* algorithm. See [SiRUP](https://arxiv.org/abs/2312.03925) (Giunti & Lazovskis, 2023) for a theoretically optimal treatment of the removal problem.
 
 Since all arithmetic is XOR over Z/2Z, there is zero numerical drift regardless of how many updates are applied.
 
@@ -136,6 +146,10 @@ The test suite runs 220+ individual comparisons against Ripser with zero mismatc
 | Empty complex | Delete all edges one by one | 45/45 EXACT |
 | Wrong order | Random deletion order | 50/50 EXACT |
 | Real data | 300 KNN insertions, 200->500 pts | 6/6 EXACT, 3.66ms |
+
+## Acknowledgments
+
+[Ripser](https://github.com/Ripser/ripser) by Ulrich Bauer serves as the ground truth for all validation. The removal mechanism was developed independently using AI-assisted development (Claude, Kimi); we acknowledge [SiRUP](https://arxiv.org/abs/2312.03925) by Giunti & Lazovskis as prior work addressing the same problem with provably optimal guarantees.
 
 ## License
 
